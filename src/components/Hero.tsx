@@ -1,14 +1,13 @@
-﻿import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ArrowDown } from 'lucide-react';
 
 export const Hero = () => {
   const scene = useRef<HTMLElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const element = scene.current;
-    const panel = stage.current;
-    if (!element || !panel) return;
+    if (!element) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     let active = true;
@@ -16,7 +15,7 @@ export const Hero = () => {
       frame = 0;
       if (reduced.matches) { element.style.setProperty('--scene-progress', '0'); return; }
       const bounds = element.getBoundingClientRect();
-      const distance = element.offsetHeight - panel.offsetHeight;
+      const distance = element.offsetHeight;
       const top = window.innerWidth <= 760 ? 76 : 96;
       const progress = distance > 0 ? Math.min(1, Math.max(0, (top - bounds.top) / distance)) : 0;
       element.style.setProperty('--scene-progress', progress.toFixed(4));
@@ -42,7 +41,7 @@ export const Hero = () => {
 
   return (
     <section ref={scene} id="inicio" className="immersive-hero">
-      <div ref={stage} className="scene-stage">
+      <div className="scene-stage">
         <div className="container scene-layout">
           <div className="scene-copy">
             <p className="scene-intro">Felipe Irala · Designer gráfico</p>
@@ -52,12 +51,11 @@ export const Hero = () => {
           </div>
           <div className="scene-art" aria-hidden="true">
             <div className="scene-piece scene-photo"><img src="/projects/fotografias/1-cover-preview.webp" alt="" width="640" height="427" /></div>
-            <div className="scene-piece scene-brand"><img src="/projects/ritmo-doce/1-cover-preview.webp" alt="" width="640" height="640" /></div>
+            <div className="scene-piece scene-brand"><img src="/projects/ritmo-doce/2-logo-preview.webp" alt="" width="640" height="640" /></div>
             <div className="scene-piece scene-album"><img src="/projects/songs-key-of-life/1-cover-preview.webp" alt="" width="640" height="640" /></div>
           </div>
           <div className="scene-bottom">
             <span>Curitiba, Brasil</span>
-            <div className="scene-scroll"><span>Role para explorar</span><span className="scene-track" aria-hidden="true"><span /></span></div>
             <a href="#sobre">Conheça quem cria <ArrowDown size={14} aria-hidden="true" /></a>
           </div>
         </div>

@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { ParallaxStory } from './components/ParallaxStory';
 import { ProjectsGrid } from './components/ProjectsGrid';
 import { ProjectModal } from './components/ProjectModal';
 import { About } from './components/About';
@@ -33,6 +34,7 @@ export const App = () => {
       <main id="conteudo">
         <Hero />
         <ProjectsGrid onSelectProject={selectProject} />
+        <ParallaxStory />
         <About />
         <Toolkit />
       </main>

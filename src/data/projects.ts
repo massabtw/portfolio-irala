@@ -21,10 +21,10 @@ export const projects: Project[] = [
     year: '2024',
     summary: 'Identidade visual para marca de doces artesanais, traduzindo agilidade comercial e acolhimento gourmet.',
     description: 'Criei a identidade da Ritmo Doce observando a rotina real da fundadora: a correria das vendas na rua lado a lado com o carinho do preparo artesanal. Para tirar isso do papel, misturei traços que passam essa ideia de movimento com uma paleta em azul marinho e mostarda. A intenção foi provar visualmente que uma marca pode ter um ritmo ágil no dia a dia sem perder o toque gourmet e acolhedor.',
-    coverImage: '/projects/ritmo-doce/1-cover.webp',
+    coverImage: '/projects/ritmo-doce/2-logo-preview.webp',
     gallery: [
-      '/projects/ritmo-doce/1-cover.webp',
       '/projects/ritmo-doce/2-logo.webp',
+      '/projects/ritmo-doce/1-cover.webp',
       '/projects/ritmo-doce/3-packaging.webp',
       '/projects/ritmo-doce/4-stationery.webp',
     ],
@@ -43,14 +43,14 @@ export const projects: Project[] = [
     year: '2024',
     summary: 'Estratégia visual e social media para ecossistema financeiro focado em autoridade e liquidez.',
     description: 'O projeto de social media para o ecossistema KONZ foi estruturado para consolidar autoridade no mercado e atrair um público high-ticket. A estratégia uniu design de alto padrão e copywriting direto para traduzir soluções financeiras — como alavancagem cambial e gestão de liquidez — em uma comunicação clara, focada na construção inteligente de patrimônio e eficiência de caixa.',
-    coverImage: '/projects/konz-capital/1-cover.webp',
+    coverImage: '/projects/konz-capital/6-institucional-preview.webp',
     gallery: [
+      '/projects/konz-capital/6-institucional.webp',
       '/projects/konz-capital/1-cover.webp',
       '/projects/konz-capital/2-liquidez.webp',
       '/projects/konz-capital/3-patrimonio.webp',
       '/projects/konz-capital/4-cambio.webp',
       '/projects/konz-capital/5-performance.webp',
-      '/projects/konz-capital/6-institucional.webp',
     ],
     tools: ['Adobe Photoshop', 'Adobe Illustrator', 'Copywriting Financeiro', 'Direção de Arte'],
     highlights: [
@@ -135,7 +135,7 @@ export const designerProfile = {
     instagramUrl: 'https://instagram.com/iralavisions',
     linkedinUrl: 'https://www.linkedin.com/in/felipeirala/',
     behanceUrl: 'https://www.behance.net/felipeirala',
-    email: 'felipeirala.design@gmail.com'
+    email: 'felipeirala2007@gmail.com'
   }
 };
 

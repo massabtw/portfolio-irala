@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { projects, Project } from '../data/projects';
 import { Reveal } from './Reveal';
@@ -32,7 +32,7 @@ export const ProjectsGrid = ({ onSelectProject }: { onSelectProject: (project: P
       <div key={category} className="project-grid filter-transition">{filtered.map((project, index) => (
         <Reveal key={project.id} className="project-card" delay={(index % 2) * 120}>
           <button className="project-button" type="button" onClick={() => onSelectProject(project)} aria-label={`Ver projeto ${project.title}`}>
-            <div className={`project-image image-${project.id}`}><picture><source media="(max-width: 480px)" srcSet={project.coverImage.replace('.webp', '-preview.webp')} /><img src={project.coverImage} alt={`Capa do projeto ${project.title}`} width="1200" height="1200" loading="lazy" /></picture><span className="project-open"><ArrowUpRight size={22} aria-hidden="true" /></span></div>
+            <div className={`project-image image-${project.id}`}><picture><source media="(max-width: 480px)" srcSet={project.coverImage.includes('-preview.webp') ? project.coverImage : project.coverImage.replace('.webp', '-preview.webp')} /><img src={project.coverImage} alt={`Capa do projeto ${project.title}`} width="1200" height="1200" loading="lazy" /></picture><span className="project-open"><ArrowUpRight size={22} aria-hidden="true" /></span></div>
             <div className="project-info"><div><h3>{project.title}</h3><p>{project.category}</p></div></div>
           </button>
         </Reveal>
