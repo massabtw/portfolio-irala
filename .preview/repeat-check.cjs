@@ -1,0 +1,41 @@
+﻿const {chromium}=require('C:/Users/m84832/AppData/Local/npm-cache/_npx/420ff84f11983ee5/node_modules/playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+const browser=await chromium.launch({channel:'chrome'});
+const page=await browser.newPage({viewport:{width:1440,height:1000}});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5173/',{waitUntil:'networkidle'});
+await page.addStyleTag({content:'html {scroll-behavior:auto!important}'});
+assert.equal(await page.locator('.project-total').count(),0);
+assert.equal(await page.locator('.hero-copy.reveal').count(),1);
+for(let i=0;i<3;i++){
+ await page.locator('#habilidades').scrollIntoViewIfNeeded();await page.waitForTimeout(1400);
+ assert.equal(await page.locator('#habilidades .is-waiting').count(),0);
+ assert.equal(await page.locator('.hero-copy.is-waiting').count(),1);
+ await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(1400);
+ assert.equal(await page.locator('.hero-copy.is-waiting').count(),0);
+ assert.ok(await page.locator('#habilidades .is-waiting').count()>0);
+ assert.equal(await page.locator('.hero-copy h1').evaluate(e=>getComputedStyle(e).opacity),'1');
+}
+await page.locator('#trabalhos').scrollIntoViewIfNeeded();
+await page.getByRole('button',{name:'Fotografia',exact:true}).click();
+assert.equal(await page.locator('.project-card').count(),1);
+assert.equal(await page.locator('.filter-transition').evaluate(e=>getComputedStyle(e).animationName),'gallery-switch');
+await page.locator('.project-button').click();
+await page.getByRole('button',{name:'Próxima imagem',exact:true}).click();
+assert.equal(await page.locator('.gallery-stage img').evaluate(e=>getComputedStyle(e).animationName),'image-switch');
+await page.keyboard.press('Escape');
+await page.getByRole('button',{name:'Todos',exact:true}).click();
+await page.setViewportSize({width:390,height:844});
+await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(1400);
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+await page.screenshot({path:'.preview/repeat-mobile.png'});
+await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(100);
+assert.equal(await page.locator('.is-waiting').count(),0);
+assert.equal(await page.locator('.filter-transition').evaluate(e=>getComputedStyle(e).animationName),'none');
+await page.emulateMedia({reducedMotion:'no-preference'});await page.waitForTimeout(100);
+assert.ok(await page.locator('#habilidades .is-waiting').count()>0);
+assert.deepEqual(errors,[]);
+await browser.close();
+console.log('PASS: three scroll cycles replay hero and sections; filter/image transitions; mobile layout; live reduced-motion changes; no runtime errors.');
+})().catch(e=>{console.error(e);process.exit(1)});
