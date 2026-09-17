@@ -10,6 +10,16 @@ export interface ProjectTranslation {
 
 export const translations = {
   pt: {
+    experience: {
+      role: 'DIRETOR DE ARTE & DESIGNER VISUAL',
+      introduction: 'Apresentação de Felipe Irala',
+      skipIntro: 'Pular apresentação',
+      viewProject: 'VER PROJETO',
+      marquee: ['DIREÇÃO DE ARTE', 'IDENTIDADE VISUAL', 'DESIGN EDITORIAL', 'BRANDING', 'MOTION & EXPERIÊNCIA'],
+      pauseMarquee: 'Pausar faixa animada',
+      playMarquee: 'Retomar faixa animada',
+      disciplines: 'Disciplinas criativas',
+    },
     nav: {
       works: 'Trabalhos',
       about: 'Sobre mim',
@@ -159,6 +169,16 @@ export const translations = {
   },
 
   en: {
+    experience: {
+      role: 'ART DIRECTOR & VISUAL DESIGNER',
+      introduction: 'Felipe Irala introduction',
+      skipIntro: 'Skip introduction',
+      viewProject: 'VIEW PROJECT',
+      marquee: ['ART DIRECTION', 'VISUAL IDENTITY', 'EDITORIAL DESIGN', 'BRANDING', 'MOTION & EXPERIENCE'],
+      pauseMarquee: 'Pause animated band',
+      playMarquee: 'Resume animated band',
+      disciplines: 'Creative disciplines',
+    },
     nav: {
       works: 'Selected Works',
       about: 'About',
@@ -307,4 +327,3 @@ export const translations = {
     },
   },
 };
-

@@ -14,10 +14,11 @@ export const Navbar = () => {
 
   useEffect(() => {
     if (open) {
-      stopScroll();
+      stopScroll('menu');
     } else {
-      startScroll();
+      startScroll('menu');
     }
+    return () => startScroll('menu');
   }, [open, stopScroll, startScroll]);
 
   return (

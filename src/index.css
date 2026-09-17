@@ -10,6 +10,7 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
+html.scroll-locked { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
 body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
 main#conteudo { overflow-x: clip; }
@@ -331,5 +332,68 @@ section, footer { scroll-margin-top: 96px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .parallax-story-img, .story-line, .parallax-inner-img, .about-parallax-img, .scene-piece { transform: none !important; }
+  .parallax-story-img, .story-line, .parallax-inner-img, .about-parallax-img { transform: none !important; }
+}
+
+/* Session introduction. The page keeps its layout while the stage is covered. */
+.preloader { position: fixed; inset: 0; z-index: 200; min-height: 100svh; background: var(--ink); color: var(--paper); padding: clamp(24px, 4vw, 64px); display: flex; flex-direction: column; justify-content: space-between; will-change: transform; }
+.preloader-top, .preloader-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; font-size: 12px; letter-spacing: .12em; }
+.preloader-top button { border: 0; border-bottom: 1px solid currentColor; background: transparent; min-height: 44px; font-size: 12px; letter-spacing: 0; }
+.preloader-top button:focus-visible { outline-color: var(--paper); }
+.preloader-identity { padding-block: 36px; }
+.preloader-name { font-size: clamp(44px, 11vw, 164px); font-weight: 600; letter-spacing: -.05em; word-spacing: .08em; line-height: 1.05; white-space: nowrap; }
+.preloader-role { margin-top: 20px; font-size: clamp(10px, 1.2vw, 17px); letter-spacing: .2em; line-height: 1.7; }
+.preloader-counter { font-size: clamp(48px, 8vw, 112px); font-variant-numeric: tabular-nums; font-weight: 500; letter-spacing: -.06em; line-height: 1; }
+.preloader-counter > span:first-child { display: inline-block; min-width: 3ch; text-align: right; }
+.preloader-counter > span:last-child { font-size: .45em; margin-left: .15em; }
+.scene-art { animation: none; }
+.scene-piece-reveal { width: 100%; height: 100%; transform-origin: center; }
+
+/* The dot is immediate; only the follower and magnetic targets interpolate. */
+.custom-cursor { position: fixed; inset: 0; z-index: 150; pointer-events: none; opacity: 0; transition: opacity 180ms; }
+.custom-cursor.is-visible { opacity: 1; }
+.cursor-dot, .cursor-follower { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
+.cursor-dot > span { position: absolute; width: 6px; height: 6px; left: -3px; top: -3px; border-radius: 50%; background: var(--ink); }
+.cursor-ring { position: absolute; width: 36px; height: 36px; left: 0; top: 0; transform: translate(-50%, -50%); border: 1px solid var(--ink); border-radius: 50%; background: transparent; opacity: .6; display: flex; align-items: center; justify-content: center; transition: width 300ms, height 300ms, border-radius 300ms, background-color 200ms, opacity 200ms; }
+.cursor-ring > span { opacity: 0; white-space: nowrap; font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--paper); transition: opacity 180ms; }
+.custom-cursor[data-mode="control"] .cursor-ring { width: 56px; height: 56px; opacity: .8; }
+.custom-cursor[data-mode="project"] .cursor-ring { width: 146px; height: 44px; border-radius: 30px; background: var(--ink); opacity: 1; }
+.custom-cursor[data-mode="project"] .cursor-ring > span { opacity: 1; }
+.custom-cursor[data-mode="project"] .cursor-dot { opacity: 0; }
+@media (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html.has-custom-cursor, html.has-custom-cursor body, html.has-custom-cursor a, html.has-custom-cursor button, html.has-custom-cursor .project-card { cursor: none; }
+  .project-button { transform-style: preserve-3d; will-change: transform; }
+}
+
+/* Independent layers prevent pointer tilt and scroll parallax overwriting each other. */
+.project-picture { transition: none !important; }
+.project-picture .parallax-inner-img { height: 100%; }
+.image-konz-capital .parallax-inner-img, .image-ritmo-doce .parallax-inner-img { object-fit: contain; }
+.project-spotlight { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none; opacity: 0; background: radial-gradient(circle 320px at var(--spot-x, 50%) var(--spot-y, 50%), rgb(255 255 255 / 18%), transparent 70%); transition: opacity 350ms; }
+:root[data-theme="dark"] .project-spotlight { background: radial-gradient(circle 320px at var(--spot-x, 50%) var(--spot-y, 50%), rgb(226 234 255 / 12%), transparent 70%); }
+.project-card[data-tilting="true"] .project-spotlight { opacity: 1; }
+
+.kinetic-marquee { position: relative; overflow: hidden; padding-block: 42px 68px; border-block: 1px solid var(--line); color: var(--ink); background: var(--paper); }
+.marquee-window { overflow: hidden; }
+.marquee-track { display: flex; width: max-content; will-change: transform; }
+.marquee-group { display: flex; align-items: center; flex-shrink: 0; min-width: 100vw; font-size: clamp(44px, 7.6vw, 116px); font-weight: 600; letter-spacing: -.055em; line-height: 1.25; white-space: nowrap; }
+.marquee-group > span { flex-shrink: 0; }
+.marquee-outline { color: transparent; -webkit-text-stroke: 1px var(--ink); }
+.marquee-separator { display: inline-block; margin-inline: .35em; color: var(--ink); -webkit-text-stroke: 0; font-size: .65em; vertical-align: .08em; }
+.marquee-toggle { position: absolute; right: max(20px, calc((100vw - 1320px) / 2)); bottom: 10px; background: var(--paper); }
+.kinetic-marquee.is-static { padding-block: 32px; }
+.is-static .marquee-track { width: 100%; will-change: auto; }
+.is-static .marquee-group { min-width: 0; max-width: 100%; flex-wrap: wrap; justify-content: center; white-space: normal; font-size: clamp(24px, 4.5vw, 64px); gap: 12px; padding-inline: 20px; }
+@media (max-width: 760px) {
+  .preloader-name { font-size: clamp(38px, 11vw, 82px); }
+  .preloader-role { max-width: 33ch; letter-spacing: .12em; }
+  .kinetic-marquee { padding-block: 30px 62px; }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .custom-cursor, .project-spotlight { display: none; }
+  .project-button { transform: none !important; will-change: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-piece-reveal { opacity: 1 !important; transform: none !important; }
+  .parallax-story-content { opacity: 1; }
 }

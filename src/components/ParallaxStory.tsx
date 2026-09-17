@@ -1,3 +1,4 @@
+import { useMediaQuery } from './useMediaQuery';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -7,6 +8,7 @@ import { translations } from '../data/translations';
 gsap.registerPlugin(ScrollTrigger);
 
 export const ParallaxStory = () => {
+  const reduced = useMediaQuery('(prefers-reduced-motion: reduce)');
   const { language } = useLanguage();
   const t = translations[language];
   const sectionRef = useRef<HTMLElement>(null);
@@ -28,7 +30,7 @@ export const ParallaxStory = () => {
 
     if (!section || !bgImage || !content || !textLine1 || !textLine2 || !subtitle || !overlay) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = reduced;
 
     const ctx = gsap.context(() => {
       if (prefersReducedMotion) {
@@ -44,7 +46,7 @@ export const ParallaxStory = () => {
       // =========================================================================
       // DESKTOP & TABLET: TWO-PHASE CINEMATIC CHOREOGRAPHY
       // =========================================================================
-      mm.add('(min-width: 769px)', () => {
+      mm.add('(min-width: 769px) and (pointer: fine)', () => {
         // Ensure text is initially 100% invisible during descent
         gsap.set(content, { opacity: 0, pointerEvents: 'none' });
 
@@ -182,7 +184,7 @@ export const ParallaxStory = () => {
       // =========================================================================
       // MOBILE: CONTINUOUS UNPINNED VIEWPORT SCRUB (ZERO FREEZES, 60-120 FPS)
       // =========================================================================
-      mm.add('(max-width: 768px)', () => {
+      mm.add('(max-width: 768px), (pointer: coarse)', () => {
         // Initial state
         gsap.set(content, { opacity: 0, pointerEvents: 'auto' });
         gsap.set(textLine1, { xPercent: -28, opacity: 0 });
@@ -311,7 +313,7 @@ export const ParallaxStory = () => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [reduced]);
 
   return (
     <section ref={sectionRef} className="parallax-story" aria-labelledby="visual-story-title">

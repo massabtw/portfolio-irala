@@ -18,16 +18,18 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
     const previousFocus = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     setImageIndex(0);
-    stopScroll();
+    stopScroll('project');
     element.showModal();
     document.body.style.overflow = 'hidden';
     return () => {
       element.close();
       document.body.style.overflow = previousOverflow;
-      startScroll();
+      startScroll('project');
       previousFocus?.focus({ preventScroll: true });
     };
   }, [project, stopScroll, startScroll]);
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   if (!project) return null;
 
@@ -43,7 +45,7 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
   const step = (direction: number) =>
     setImageIndex(value => (value + direction + project.gallery.length) % project.gallery.length);
 
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
