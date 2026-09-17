@@ -21,9 +21,11 @@ export const Toolkit = () => {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
       const items = grid.querySelectorAll('.service');
-      // Subtle staggered scroll float on desktop
-      if (window.innerWidth >= 768) {
+
+      // Desktop: Subtle staggered scroll float
+      mm.add('(min-width: 769px)', () => {
         items.forEach((item, index) => {
           gsap.fromTo(
             item,
@@ -40,7 +42,31 @@ export const Toolkit = () => {
             }
           );
         });
-      }
+      });
+
+      // Mobile: Progressive scroll reveal and soft lift
+      mm.add('(max-width: 768px)', () => {
+        items.forEach((item) => {
+          gsap.fromTo(
+            item,
+            {
+              y: 28,
+              opacity: 0.55,
+            },
+            {
+              y: 0,
+              opacity: 1,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: item,
+                start: 'top 92%',
+                end: 'top 65%',
+                scrub: 0.8,
+              },
+            }
+          );
+        });
+      });
     }, section);
 
     return () => ctx.revert();

@@ -180,49 +180,140 @@ export const ParallaxStory = () => {
       });
 
       // =========================================================================
-      // MOBILE: TRANSIÇÃO CONTÍNUA SUAVE (SEM TRAVAR O TOQUE DO DEDO)
+      // MOBILE: TWO-PHASE CINEMATIC PINNED CHOREOGRAPHY
       // =========================================================================
       mm.add('(max-width: 768px)', () => {
-        gsap.set(content, { opacity: 0 });
+        // Ensure text is initially 100% invisible during descent
+        gsap.set(content, { opacity: 0, pointerEvents: 'none' });
 
-        const mobileTl = gsap.timeline({
+        // -----------------------------------------------------------------------
+        // FASE 1: Transição de Entrada Ativa no Celular (start: 'top bottom' -> 'top top')
+        // Enquanto o usuário desce da grade de projetos até o topo desta seção,
+        // a foto de samba já se move ativamente em profundidade analógica
+        // sem imagem estática. O texto permanece 100% oculto nesta fase.
+        // -----------------------------------------------------------------------
+        gsap.fromTo(
+          bgImage,
+          {
+            yPercent: -18,
+            scale: 1.25,
+          },
+          {
+            yPercent: 0,
+            scale: 1.12,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+
+        // -----------------------------------------------------------------------
+        // FASE 2: Palco Travado no Celular & Surgimento Teatral
+        // (start: 'top top' -> end: '+=120%', pin: true)
+        // A tela trava no topo do viewport mobile, o texto surge do nada (fade in
+        // + vetores opostos), descansa legível no centro e dissolve no desfecho.
+        // -----------------------------------------------------------------------
+        const mobilePinnedTl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top 75%',
-            end: 'bottom 25%',
-            scrub: 0.8,
+            start: 'top top',
+            end: '+=120%',
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.85,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
 
-        mobileTl
-          .fromTo(
-            bgImage,
-            { yPercent: -15, scale: 1.2 },
-            { yPercent: 15, scale: 1.02, ease: 'none' },
-            0
-          )
+        // 1. Surgimento do texto no celular (0% a 35% do pin)
+        mobilePinnedTl
           .to(
             content,
-            { opacity: 1, duration: 0.3, ease: 'power1.out' },
-            0.1
+            {
+              opacity: 1,
+              pointerEvents: 'auto',
+              duration: 0.35,
+              ease: 'power2.out',
+            },
+            0
           )
           .fromTo(
             textLine1,
-            { xPercent: -25, opacity: 0 },
-            { xPercent: 0, opacity: 1, duration: 0.4 },
-            0.1
+            { xPercent: -35, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
+            0
           )
           .fromTo(
             textLine2,
-            { xPercent: 25, opacity: 0 },
-            { xPercent: 0, opacity: 1, duration: 0.4 },
-            0.1
+            { xPercent: 35, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
+            0
           )
           .fromTo(
             subtitle,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.3 },
-            0.2
+            { y: 24, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+            0.12
+          )
+          .to(
+            bgImage,
+            {
+              scale: 1.02,
+              yPercent: 6,
+              duration: 1.0,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            overlay,
+            {
+              opacity: 0.75,
+              duration: 0.5,
+              ease: 'none',
+            },
+            0
+          );
+
+        // 2. Leitura repousada no centro (35% a 70% do pin mobile)
+
+        // 3. Dissolução suave no final do pin no celular (70% a 100%)
+        mobilePinnedTl
+          .to(
+            textLine1,
+            {
+              xPercent: 15,
+              opacity: 0,
+              duration: 0.3,
+              ease: 'power1.in',
+            },
+            0.72
+          )
+          .to(
+            textLine2,
+            {
+              xPercent: -15,
+              opacity: 0,
+              duration: 0.3,
+              ease: 'power1.in',
+            },
+            0.72
+          )
+          .to(
+            subtitle,
+            {
+              opacity: 0,
+              y: -15,
+              duration: 0.25,
+              ease: 'power1.in',
+            },
+            0.76
           );
       });
     }, section);

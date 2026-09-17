@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react';
 import { Project } from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
+import { useSmoothScroll } from '../context/SmoothScrollContext';
 import { translations } from '../data/translations';
 
 export const ProjectModal = ({ project, onClose }: { project: Project | null; onClose: () => void }) => {
   const dialog = useRef<HTMLDialogElement>(null);
   const [imageIndex, setImageIndex] = useState(0);
   const { language } = useLanguage();
+  const { stopScroll, startScroll } = useSmoothScroll();
   const t = translations[language];
 
   useEffect(() => {
@@ -16,14 +18,16 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
     const previousFocus = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     setImageIndex(0);
+    stopScroll();
     element.showModal();
     document.body.style.overflow = 'hidden';
     return () => {
       element.close();
       document.body.style.overflow = previousOverflow;
+      startScroll();
       previousFocus?.focus({ preventScroll: true });
     };
-  }, [project]);
+  }, [project, stopScroll, startScroll]);
 
   if (!project) return null;
 
@@ -38,6 +42,26 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
   const index = imageIndex % project.gallery.length;
   const step = (direction: number) =>
     setImageIndex(value => (value + direction + project.gallery.length) % project.gallery.length);
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || e.changedTouches.length !== 1) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        step(1); // Swiped left -> next photo
+      } else {
+        step(-1); // Swiped right -> previous photo
+      }
+    }
+  };
 
   const contact = `https://wa.me/554191941108?text=${encodeURIComponent(t.modal.whatsappMessage(title))}`;
 
@@ -95,7 +119,7 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
 
       <div className="dialog-grid">
         <div className="gallery-viewer">
-          <div className="gallery-stage">
+          <div className="gallery-stage" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
             <img
               key={project.gallery[index]}
               src={project.gallery[index]}

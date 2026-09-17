@@ -42,39 +42,77 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
     const isEvenColumn = index % 2 === 1;
 
     const ctx = gsap.context(() => {
-      // 1. Inner Image Window Parallax Scrub
-      gsap.fromTo(
-        img,
-        {
-          yPercent: -10,
-          scale: 1.12,
-        },
-        {
-          yPercent: 10,
-          scale: 1.04,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 0.9,
-          },
-        }
-      );
+      const mm = gsap.matchMedia();
 
-      // 2. Asymmetric Column Parallax on Desktop
-      if (isEvenColumn && window.innerWidth >= 1000) {
-        gsap.to(card, {
-          y: -45,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1.2,
+      // Desktop: Asymmetric column offset & window parallax
+      mm.add('(min-width: 769px)', () => {
+        gsap.fromTo(
+          img,
+          {
+            yPercent: -10,
+            scale: 1.12,
           },
-        });
-      }
+          {
+            yPercent: 10,
+            scale: 1.04,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.9,
+            },
+          }
+        );
+
+        if (isEvenColumn) {
+          gsap.to(card, {
+            y: -45,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          });
+        }
+      });
+
+      // Mobile: Calibrated window parallax and subtle editorial cadence
+      mm.add('(max-width: 768px)', () => {
+        gsap.fromTo(
+          img,
+          {
+            yPercent: -8,
+            scale: 1.15,
+          },
+          {
+            yPercent: 8,
+            scale: 1.05,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.8,
+            },
+          }
+        );
+
+        if (isEvenColumn) {
+          gsap.to(card, {
+            y: -16,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.0,
+            },
+          });
+        }
+      });
     }, card);
 
     return () => ctx.revert();

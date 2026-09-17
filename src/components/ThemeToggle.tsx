@@ -21,10 +21,16 @@ export const ThemeToggle = () => {
 
   const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.classList.add('theme-transitioning');
     setTheme(next);
     document.documentElement.dataset.theme = next;
+    document.documentElement.style.backgroundColor = next === 'dark' ? '#292d33' : '#f7f8fa';
+    document.documentElement.style.colorScheme = next;
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#292d33' : '#f7f8fa');
     try { localStorage.setItem('irala-theme', next); } catch { /* The toggle still works without storage. */ }
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+    }, 400);
   };
 
   return <button type="button" className="theme-toggle icon-button" onClick={toggle} aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'} title={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}>{theme === 'dark' ? <Sun size={19} aria-hidden="true" /> : <Moon size={19} aria-hidden="true" />}</button>;

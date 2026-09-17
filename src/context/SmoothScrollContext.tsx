@@ -26,19 +26,23 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     // Respect user preference for reduced motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Cinematic Awwwards scroll configuration:
     // Heavy, weighted momentum with silky damping (lerp: 0.08)
     const lenis = new Lenis({
-      duration: prefersReducedMotion ? 0 : 1.25,
+      duration: prefersReducedMotion ? 0 : 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential deceleration curve
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: !prefersReducedMotion,
       wheelMultiplier: 0.95,
-      touchMultiplier: 1.2,
+      touchMultiplier: 1.35,
       infinite: false,
     });
 
@@ -55,6 +59,20 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
     gsap.ticker.add(updateTicker);
     gsap.ticker.lagSmoothing(0);
 
+    // Refresh ScrollTrigger on orientation change or viewport resize
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('orientationchange', handleResize);
+    window.addEventListener('resize', handleResize);
+
+    // Recompute triggers once web fonts (Plus Jakarta Sans) have completely loaded
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh();
+      });
+    }
+
     // Intercept internal hash anchor clicks (e.g. #trabalhos, #sobre, #contato)
     // to glide smoothly using Lenis
     const handleAnchorClick = (e: MouseEvent) => {
@@ -62,9 +80,17 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
       if (!target) return;
       const hash = target.getAttribute('href');
       if (!hash || hash === '#') return;
+
+      e.preventDefault();
+      lenis.start();
+
+      if (hash === '#inicio') {
+        lenis.scrollTo(0, { duration: 1.4 });
+        return;
+      }
+
       const targetElement = document.querySelector(hash);
       if (targetElement) {
-        e.preventDefault();
         lenis.scrollTo(targetElement as HTMLElement, {
           offset: -40,
           duration: 1.4,
@@ -87,6 +113,8 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       document.removeEventListener('click', handleAnchorClick);
       mediaQuery.removeEventListener('change', handleMotionChange);
+      window.removeEventListener('orientationchange', handleResize);
+      window.removeEventListener('resize', handleResize);
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
       lenisRef.current = null;

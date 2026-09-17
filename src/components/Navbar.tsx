@@ -1,14 +1,24 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useLanguage } from '../context/LanguageContext';
+import { useSmoothScroll } from '../context/SmoothScrollContext';
 import { translations } from '../data/translations';
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const { language, setLanguage } = useLanguage();
+  const { stopScroll, startScroll } = useSmoothScroll();
   const t = translations[language];
+
+  useEffect(() => {
+    if (open) {
+      stopScroll();
+    } else {
+      startScroll();
+    }
+  }, [open, stopScroll, startScroll]);
 
   return (
     <header

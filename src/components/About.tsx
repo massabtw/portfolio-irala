@@ -29,63 +29,123 @@ export const About = () => {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // 1. Inner Photo Window Parallax Counter-Scroll
-      gsap.fromTo(
-        img,
-        {
-          yPercent: -14,
-          scale: 1.18,
-        },
-        {
-          yPercent: 14,
-          scale: 1.05,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        }
-      );
+      const mm = gsap.matchMedia();
 
-      // 2. Subtle Copy Parallax Float
-      gsap.fromTo(
-        copy,
-        {
-          y: 35,
-          opacity: 0.85,
-        },
-        {
-          y: -25,
-          opacity: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1.2,
-          },
-        }
-      );
-
-      // 3. Floating Facts subtle offset
-      if (facts) {
+      // Desktop: Full counter-scroll and editorial copy float
+      mm.add('(min-width: 769px)', () => {
         gsap.fromTo(
-          facts,
-          { y: 20 },
+          img,
           {
-            y: -15,
+            yPercent: -14,
+            scale: 1.18,
+          },
+          {
+            yPercent: 14,
+            scale: 1.05,
             ease: 'none',
             scrollTrigger: {
               trigger: section,
-              start: 'top 80%',
+              start: 'top bottom',
               end: 'bottom top',
-              scrub: 1.4,
+              scrub: 1,
             },
           }
         );
-      }
+
+        gsap.fromTo(
+          copy,
+          {
+            y: 35,
+            opacity: 0.85,
+          },
+          {
+            y: -25,
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        );
+
+        if (facts) {
+          gsap.fromTo(
+            facts,
+            { y: 20 },
+            {
+              y: -15,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 80%',
+                end: 'bottom top',
+                scrub: 1.4,
+              },
+            }
+          );
+        }
+      });
+
+      // Mobile: Calibrated photo window counter-scroll and subtle copy lift
+      mm.add('(max-width: 768px)', () => {
+        gsap.fromTo(
+          img,
+          {
+            yPercent: -10,
+            scale: 1.16,
+          },
+          {
+            yPercent: 10,
+            scale: 1.04,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.8,
+            },
+          }
+        );
+
+        gsap.fromTo(
+          copy,
+          {
+            y: 20,
+            opacity: 0.9,
+          },
+          {
+            y: -10,
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.0,
+            },
+          }
+        );
+
+        if (facts) {
+          gsap.fromTo(
+            facts,
+            { y: 12 },
+            {
+              y: -8,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top 85%',
+                end: 'bottom top',
+                scrub: 1.1,
+              },
+            }
+          );
+        }
+      });
     }, section);
 
     return () => ctx.revert();

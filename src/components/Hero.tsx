@@ -29,9 +29,15 @@ export const Hero = () => {
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // 1. GSAP ScrollTrigger Multi-Plane Parallax Timeline
     const ctx = gsap.context(() => {
-      if (!prefersReducedMotion) {
+      if (prefersReducedMotion) return;
+
+      const mm = gsap.matchMedia();
+
+      // =========================================================================
+      // DESKTOP: MULTI-PLANE PARALLAX TIMELINE & DISPERSION
+      // =========================================================================
+      mm.add('(min-width: 769px)', () => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
@@ -42,13 +48,12 @@ export const Hero = () => {
           },
         });
 
-        // Layered dispersion on scroll
         tl.to(
           photo,
           {
-            y: -110,
-            x: -45,
-            rotation: -18,
+            y: -95,
+            x: -40,
+            rotation: -8,
             ease: 'none',
           },
           0
@@ -56,10 +61,10 @@ export const Hero = () => {
           .to(
             brand,
             {
-              y: 75,
-              x: -25,
-              rotation: 12,
-              scale: 0.94,
+              y: 70,
+              x: -22,
+              rotation: 8,
+              scale: 0.95,
               ease: 'none',
             },
             0
@@ -67,10 +72,10 @@ export const Hero = () => {
           .to(
             album,
             {
-              y: -60,
-              x: 40,
-              rotation: -3,
-              scale: 1.14,
+              y: -50,
+              x: 35,
+              rotation: -4,
+              scale: 1.12,
               ease: 'none',
             },
             0
@@ -100,10 +105,81 @@ export const Hero = () => {
             },
             0
           );
-      }
+      });
+
+      // =========================================================================
+      // MOBILE: LAYERED 3D COMPOSITION DISPERSION & DRIFT
+      // =========================================================================
+      mm.add('(max-width: 768px)', () => {
+        const mobileTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 0.9,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        mobileTl
+          .to(
+            photo,
+            {
+              yPercent: -18,
+              xPercent: -14,
+              rotation: -5,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            brand,
+            {
+              yPercent: 20,
+              xPercent: 14,
+              rotation: 6,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            album,
+            {
+              scale: 1.08,
+              yPercent: -8,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            titleLine1Ref.current,
+            {
+              x: -16,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            titleLine2Ref.current,
+            {
+              x: 16,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            copyRef.current,
+            {
+              opacity: 0.35,
+              y: -22,
+              ease: 'none',
+            },
+            0
+          );
+      });
     }, section);
 
-    // 2. Interactive 3D Cursor Tilt Micro-Interaction (Awwwards staple)
+    // 2. Interactive 3D Cursor Tilt (Desktop) & Touch Tilt (Mobile)
     let pointerActive = false;
     const handlePointerMove = (e: PointerEvent) => {
       if (prefersReducedMotion || window.innerWidth < 768) return;
@@ -111,13 +187,11 @@ export const Hero = () => {
       const xNorm = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
       const yNorm = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
 
-      // Clamp values between -1.2 and 1.2
       const clampedX = Math.max(-1.2, Math.min(1.2, xNorm));
       const clampedY = Math.max(-1.2, Math.min(1.2, yNorm));
 
       pointerActive = true;
 
-      // Rotate stage subtly with spring physics
       gsap.to(art, {
         rotateY: clampedX * 9,
         rotateX: -clampedY * 9,
@@ -127,7 +201,6 @@ export const Hero = () => {
         overwrite: 'auto',
       });
 
-      // Individual layer micro-displacement for stereoscopic 3D feel
       gsap.to(photo, {
         xPercent: clampedX * 5,
         yPercent: clampedY * 5,
@@ -165,13 +238,57 @@ export const Hero = () => {
       });
     };
 
+    // Mobile subtle touch-drag micro-interaction
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (prefersReducedMotion || e.touches.length !== 1) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (prefersReducedMotion || e.touches.length !== 1) return;
+      const dx = (e.touches[0].clientX - touchStartX) / window.innerWidth;
+      const dy = (e.touches[0].clientY - touchStartY) / window.innerHeight;
+      const clampedX = Math.max(-0.9, Math.min(0.9, dx * 3.5));
+      const clampedY = Math.max(-0.9, Math.min(0.9, dy * 3.5));
+
+      gsap.to(art, {
+        rotateY: clampedX * 7,
+        rotateX: -clampedY * 7,
+        transformPerspective: 900,
+        duration: 0.5,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    };
+
+    const handleTouchEnd = () => {
+      if (prefersReducedMotion) return;
+      gsap.to(art, {
+        rotateX: 0,
+        rotateY: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    };
+
     const sectionEl = section;
+    const artEl = art;
     sectionEl.addEventListener('pointermove', handlePointerMove, { passive: true });
     sectionEl.addEventListener('pointerleave', handlePointerLeave);
+    artEl.addEventListener('touchstart', handleTouchStart, { passive: true });
+    artEl.addEventListener('touchmove', handleTouchMove, { passive: true });
+    artEl.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       sectionEl.removeEventListener('pointermove', handlePointerMove);
       sectionEl.removeEventListener('pointerleave', handlePointerLeave);
+      artEl.removeEventListener('touchstart', handleTouchStart);
+      artEl.removeEventListener('touchmove', handleTouchMove);
+      artEl.removeEventListener('touchend', handleTouchEnd);
       ctx.revert();
     };
   }, []);
@@ -195,14 +312,20 @@ export const Hero = () => {
           </div>
 
           <div ref={artRef} className="scene-art" aria-hidden="true">
-            <div ref={photoRef} className="scene-piece scene-photo">
-              <img src="/projects/fotografias/1-cover-preview.webp" alt="" width="640" height="427" />
+            <div className="scene-piece scene-photo">
+              <div ref={photoRef} className="scene-piece-inner">
+                <img src="/projects/fotografias/1-cover-preview.webp" alt="" width="640" height="427" />
+              </div>
             </div>
-            <div ref={brandRef} className="scene-piece scene-brand">
-              <img src="/projects/ritmo-doce/2-logo-preview.webp" alt="" width="640" height="640" />
+            <div className="scene-piece scene-brand">
+              <div ref={brandRef} className="scene-piece-inner">
+                <img src="/projects/ritmo-doce/2-logo-preview.webp" alt="" width="640" height="640" />
+              </div>
             </div>
-            <div ref={albumRef} className="scene-piece scene-album">
-              <img src="/projects/songs-key-of-life/1-cover-preview.webp" alt="" width="640" height="640" />
+            <div className="scene-piece scene-album">
+              <div ref={albumRef} className="scene-piece-inner">
+                <img src="/projects/songs-key-of-life/1-cover-preview.webp" alt="" width="640" height="640" />
+              </div>
             </div>
           </div>
 

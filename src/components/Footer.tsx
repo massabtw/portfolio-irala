@@ -28,44 +28,87 @@ export const Footer = () => {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // Monumental headline upward scrub
-      gsap.fromTo(
-        title,
-        {
-          y: 40,
-          opacity: 0.8,
-        },
-        {
-          y: 0,
-          opacity: 1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footer,
-            start: 'top 85%',
-            end: 'bottom bottom',
-            scrub: 1,
-          },
-        }
-      );
+      const mm = gsap.matchMedia();
 
-      // Arrow dynamic drift
-      if (arrow) {
+      // Desktop: Monumental headline upward scrub
+      mm.add('(min-width: 769px)', () => {
         gsap.fromTo(
-          arrow,
-          { x: -10, y: 10 },
+          title,
           {
-            x: 0,
+            y: 40,
+            opacity: 0.8,
+          },
+          {
             y: 0,
-            ease: 'none',
+            opacity: 1,
+            ease: 'power2.out',
             scrollTrigger: {
               trigger: footer,
-              start: 'top 80%',
+              start: 'top 85%',
               end: 'bottom bottom',
               scrub: 1,
             },
           }
         );
-      }
+
+        if (arrow) {
+          gsap.fromTo(
+            arrow,
+            { x: -10, y: 10 },
+            {
+              x: 0,
+              y: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: footer,
+                start: 'top 80%',
+                end: 'bottom bottom',
+                scrub: 1,
+              },
+            }
+          );
+        }
+      });
+
+      // Mobile: Calibrated upward scrub and arrow drift
+      mm.add('(max-width: 768px)', () => {
+        gsap.fromTo(
+          title,
+          {
+            y: 22,
+            opacity: 0.85,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: footer,
+              start: 'top 90%',
+              end: 'bottom bottom',
+              scrub: 0.8,
+            },
+          }
+        );
+
+        if (arrow) {
+          gsap.fromTo(
+            arrow,
+            { x: -6, y: 6 },
+            {
+              x: 0,
+              y: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: footer,
+                start: 'top 85%',
+                end: 'bottom bottom',
+                scrub: 0.8,
+              },
+            }
+          );
+        }
+      });
     }, footer);
 
     return () => ctx.revert();
