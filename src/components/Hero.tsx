@@ -179,10 +179,10 @@ export const Hero = () => {
       });
     }, section);
 
-    // 2. Interactive 3D Cursor Tilt (Desktop) & Touch Tilt (Mobile)
+    // 2. Interactive 3D Cursor Tilt (Desktop only)
     let pointerActive = false;
     const handlePointerMove = (e: PointerEvent) => {
-      if (prefersReducedMotion || window.innerWidth < 768) return;
+      if (prefersReducedMotion || window.innerWidth < 768 || e.pointerType === 'touch') return;
       const rect = art.getBoundingClientRect();
       const xNorm = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
       const yNorm = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
@@ -238,57 +238,13 @@ export const Hero = () => {
       });
     };
 
-    // Mobile subtle touch-drag micro-interaction
-    let touchStartX = 0;
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      if (prefersReducedMotion || e.touches.length !== 1) return;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (prefersReducedMotion || e.touches.length !== 1) return;
-      const dx = (e.touches[0].clientX - touchStartX) / window.innerWidth;
-      const dy = (e.touches[0].clientY - touchStartY) / window.innerHeight;
-      const clampedX = Math.max(-0.9, Math.min(0.9, dx * 3.5));
-      const clampedY = Math.max(-0.9, Math.min(0.9, dy * 3.5));
-
-      gsap.to(art, {
-        rotateY: clampedX * 7,
-        rotateX: -clampedY * 7,
-        transformPerspective: 900,
-        duration: 0.5,
-        ease: 'power2.out',
-        overwrite: 'auto',
-      });
-    };
-
-    const handleTouchEnd = () => {
-      if (prefersReducedMotion) return;
-      gsap.to(art, {
-        rotateX: 0,
-        rotateY: 0,
-        duration: 0.8,
-        ease: 'power2.out',
-        overwrite: 'auto',
-      });
-    };
-
     const sectionEl = section;
-    const artEl = art;
     sectionEl.addEventListener('pointermove', handlePointerMove, { passive: true });
     sectionEl.addEventListener('pointerleave', handlePointerLeave);
-    artEl.addEventListener('touchstart', handleTouchStart, { passive: true });
-    artEl.addEventListener('touchmove', handleTouchMove, { passive: true });
-    artEl.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       sectionEl.removeEventListener('pointermove', handlePointerMove);
       sectionEl.removeEventListener('pointerleave', handlePointerLeave);
-      artEl.removeEventListener('touchstart', handleTouchStart);
-      artEl.removeEventListener('touchmove', handleTouchMove);
-      artEl.removeEventListener('touchend', handleTouchEnd);
       ctx.revert();
     };
   }, []);

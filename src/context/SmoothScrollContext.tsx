@@ -42,7 +42,8 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
       gestureOrientation: 'vertical',
       smoothWheel: !prefersReducedMotion,
       wheelMultiplier: 0.95,
-      touchMultiplier: 1.35,
+      touchMultiplier: 1,
+      syncTouch: false,
       infinite: false,
     });
 
@@ -57,7 +58,7 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(updateTicker);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
     // Refresh ScrollTrigger on orientation change or viewport resize
     const handleResize = () => {

@@ -5,13 +5,14 @@
 :root { color-scheme: light; --paper: #f7f8fa; --white: #fff; --ink: #202427; --muted: #62686f; --accent: #2949d7; --line: #dce0e5; --surface: #eef0f3; --gallery: #eceef1; --header: rgb(247 248 250 / 95%); --contact: #2949d7; }
 :root[data-theme="dark"] { color-scheme: dark; --paper: #292d33; --white: #343941; --ink: #f1f2f5; --muted: #bdc3cd; --accent: #a2b4ff; --line: #49515d; --surface: #323740; --gallery: #363c46; --header: rgb(41 45 51 / 95%); --contact: #344a9b; }
 * { box-sizing: border-box; }
-html { scroll-padding-top: 100px; background: var(--paper); overflow-x: clip; }
+html { scroll-padding-top: 100px; background: var(--paper); }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
-body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+main#conteudo { overflow-x: clip; }
 ::selection { background: var(--accent); color: white; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }

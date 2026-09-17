@@ -180,140 +180,132 @@ export const ParallaxStory = () => {
       });
 
       // =========================================================================
-      // MOBILE: TWO-PHASE CINEMATIC PINNED CHOREOGRAPHY
+      // MOBILE: CONTINUOUS UNPINNED VIEWPORT SCRUB (ZERO FREEZES, 60-120 FPS)
       // =========================================================================
       mm.add('(max-width: 768px)', () => {
-        // Ensure text is initially 100% invisible during descent
-        gsap.set(content, { opacity: 0, pointerEvents: 'none' });
+        // Initial state
+        gsap.set(content, { opacity: 0, pointerEvents: 'auto' });
+        gsap.set(textLine1, { xPercent: -28, opacity: 0 });
+        gsap.set(textLine2, { xPercent: 28, opacity: 0 });
+        gsap.set(subtitle, { y: 20, opacity: 0 });
 
-        // -----------------------------------------------------------------------
-        // FASE 1: Transição de Entrada Ativa no Celular (start: 'top bottom' -> 'top top')
-        // Enquanto o usuário desce da grade de projetos até o topo desta seção,
-        // a foto de samba já se move ativamente em profundidade analógica
-        // sem imagem estática. O texto permanece 100% oculto nesta fase.
-        // -----------------------------------------------------------------------
+        // Background parallax: active, continuous image translation
         gsap.fromTo(
           bgImage,
           {
-            yPercent: -18,
-            scale: 1.25,
+            yPercent: -14,
+            scale: 1.18,
           },
           {
-            yPercent: 0,
-            scale: 1.12,
+            yPercent: 12,
+            scale: 1.04,
             ease: 'none',
             scrollTrigger: {
               trigger: section,
               start: 'top bottom',
-              end: 'top top',
-              scrub: 0.8,
+              end: 'bottom top',
+              scrub: 0.5,
               invalidateOnRefresh: true,
             },
           }
         );
 
-        // -----------------------------------------------------------------------
-        // FASE 2: Palco Travado no Celular & Surgimento Teatral
-        // (start: 'top top' -> end: '+=120%', pin: true)
-        // A tela trava no topo do viewport mobile, o texto surge do nada (fade in
-        // + vetores opostos), descansa legível no centro e dissolve no desfecho.
-        // -----------------------------------------------------------------------
-        const mobilePinnedTl = gsap.timeline({
+        // Content choreography as section traverses the viewport:
+        // Enters theatrical (top 75% -> top 30%), rests legible, dissolves out smoothly (bottom 40% -> bottom 10%)
+        const mobileStoryTl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top top',
-            end: '+=120%',
-            pin: true,
-            pinSpacing: true,
-            scrub: 0.85,
-            anticipatePin: 1,
+            start: 'top 75%',
+            end: 'bottom 15%',
+            scrub: 0.6,
             invalidateOnRefresh: true,
           },
         });
 
-        // 1. Surgimento do texto no celular (0% a 35% do pin)
-        mobilePinnedTl
+        // 1. Entrance: text slides in from opposing vectors and fades in (0% to 35% of timeline)
+        mobileStoryTl
           .to(
             content,
             {
               opacity: 1,
-              pointerEvents: 'auto',
+              duration: 0.25,
+              ease: 'power2.out',
+            },
+            0
+          )
+          .to(
+            textLine1,
+            {
+              xPercent: 0,
+              opacity: 1,
               duration: 0.35,
               ease: 'power2.out',
             },
             0
           )
-          .fromTo(
-            textLine1,
-            { xPercent: -35, opacity: 0 },
-            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
-            0
-          )
-          .fromTo(
-            textLine2,
-            { xPercent: 35, opacity: 0 },
-            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
-            0
-          )
-          .fromTo(
-            subtitle,
-            { y: 24, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-            0.12
-          )
           .to(
-            bgImage,
+            textLine2,
             {
-              scale: 1.02,
-              yPercent: 6,
-              duration: 1.0,
-              ease: 'none',
+              xPercent: 0,
+              opacity: 1,
+              duration: 0.35,
+              ease: 'power2.out',
             },
             0
           )
           .to(
+            subtitle,
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.3,
+              ease: 'power2.out',
+            },
+            0.08
+          )
+          .to(
             overlay,
             {
-              opacity: 0.75,
-              duration: 0.5,
+              opacity: 0.72,
+              duration: 0.35,
               ease: 'none',
             },
             0
           );
 
-        // 2. Leitura repousada no centro (35% a 70% do pin mobile)
+        // 2. Reading plateau: text remains centered & clearly legible (35% to 68%)
 
-        // 3. Dissolução suave no final do pin no celular (70% a 100%)
-        mobilePinnedTl
+        // 3. Gentle exit: text dissolves gracefully before section leaves viewport (68% to 100%)
+        mobileStoryTl
           .to(
             textLine1,
             {
-              xPercent: 15,
+              xPercent: 12,
               opacity: 0,
-              duration: 0.3,
+              duration: 0.28,
               ease: 'power1.in',
             },
-            0.72
+            0.70
           )
           .to(
             textLine2,
             {
-              xPercent: -15,
+              xPercent: -12,
               opacity: 0,
-              duration: 0.3,
+              duration: 0.28,
               ease: 'power1.in',
             },
-            0.72
+            0.70
           )
           .to(
             subtitle,
             {
+              y: -14,
               opacity: 0,
-              y: -15,
-              duration: 0.25,
+              duration: 0.24,
               ease: 'power1.in',
             },
-            0.76
+            0.74
           );
       });
     }, section);
