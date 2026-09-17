@@ -1,18 +1,68 @@
-﻿import { Reveal } from './Reveal';
+import { useEffect, useRef } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../data/translations';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const services = [
-  { title: 'Identidade visual', description: 'Marcas com personalidade, do logo às embalagens e aos materiais que fazem parte do dia a dia.', detail: 'Branding · Logos · Embalagens' },
-  { title: 'Design para comunicar', description: 'Uma linguagem visual que conecta a mensagem ao público, nas redes sociais ou em projetos culturais.', detail: 'Social media · Capas · Peças gráficas' },
-  { title: 'Fotografia & direção de arte', description: 'Um olhar atento à luz, à composição e à atmosfera para construir imagens que contam histórias.', detail: 'Fotografia autoral · Composição visual' },
-];
+gsap.registerPlugin(ScrollTrigger);
 
-export const Toolkit = () => (
-  <section id="habilidades" className="container services" aria-labelledby="services-title">
-    <Reveal variant="heading"><div className="services-heading"><p className="section-label">Como posso contribuir</p><h2 id="services-title">Sua ideia pode<br />ganhar muitas formas.</h2></div></Reveal>
-    <div className="services-grid">{services.map((service, index) => (
-      <Reveal key={service.title} delay={index * 100} className="service">
-        <h3>{service.title}</h3><p>{service.description}</p><span>{service.detail}</span>
-      </Reveal>
-    ))}</div>
-  </section>
-);
+export const Toolkit = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
+  const t = translations[language];
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const grid = gridRef.current;
+    if (!section || !grid) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const ctx = gsap.context(() => {
+      const items = grid.querySelectorAll('.service');
+      // Subtle staggered scroll float on desktop
+      if (window.innerWidth >= 768) {
+        items.forEach((item, index) => {
+          gsap.fromTo(
+            item,
+            { y: index * 24 },
+            {
+              y: -index * 16,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: section,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 1.2,
+              },
+            }
+          );
+        });
+      }
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section ref={sectionRef} id="habilidades" className="container services" aria-labelledby="services-title">
+      <div className="services-heading">
+        <p className="section-label">{t.toolkit.label}</p>
+        <h2 id="services-title">
+          {t.toolkit.titleLine1}<br />{t.toolkit.titleLine2}
+        </h2>
+      </div>
+      <div ref={gridRef} className="services-grid">
+        {t.toolkit.services.map(service => (
+          <div key={service.title} className="service">
+            <h3>{service.title}</h3>
+            <p>{service.description}</p>
+            <span>{service.detail}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};

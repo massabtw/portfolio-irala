@@ -1,32 +1,254 @@
-﻿import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../data/translations';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export const ParallaxStory = () => {
-  const ref = useRef<HTMLElement>(null);
+  const { language } = useLanguage();
+  const t = translations[language];
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgImageRef = useRef<HTMLImageElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
+  const textLine1Ref = useRef<HTMLSpanElement>(null);
+  const textLine2Ref = useRef<HTMLSpanElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let frame = 0;
-    let active = false;
-    const update = () => {
-      frame = 0;
-      const rect = element.getBoundingClientRect();
-      const depth = reduced.matches ? 0 : Math.max(-1, Math.min(1, (window.innerHeight / 2 - rect.top - rect.height / 2) / ((window.innerHeight + rect.height) / 2)));
-      element.style.setProperty('--depth', depth.toFixed(4));
-    };
-    const schedule = () => { if (active && !frame) frame = requestAnimationFrame(update); };
-    const observer = new IntersectionObserver(([entry]) => { active = entry.isIntersecting; if (active) schedule(); }, { rootMargin: '100px' });
-    observer.observe(element);
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    reduced.addEventListener('change', update);
-    update();
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); reduced.removeEventListener('change', update); };
+    const section = sectionRef.current;
+    const bgImage = bgImageRef.current;
+    const content = contentWrapperRef.current;
+    const textLine1 = textLine1Ref.current;
+    const textLine2 = textLine2Ref.current;
+    const subtitle = subtitleRef.current;
+    const overlay = overlayRef.current;
+
+    if (!section || !bgImage || !content || !textLine1 || !textLine2 || !subtitle || !overlay) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const ctx = gsap.context(() => {
+      if (prefersReducedMotion) {
+        // Show text statically for users preferring reduced motion
+        gsap.set(content, { opacity: 1, pointerEvents: 'auto' });
+        gsap.set([textLine1, textLine2], { xPercent: 0, opacity: 1 });
+        gsap.set(subtitle, { y: 0, opacity: 1 });
+        return;
+      }
+
+      const mm = gsap.matchMedia();
+
+      // =========================================================================
+      // DESKTOP & TABLET: TWO-PHASE CINEMATIC CHOREOGRAPHY
+      // =========================================================================
+      mm.add('(min-width: 769px)', () => {
+        // Ensure text is initially 100% invisible during descent
+        gsap.set(content, { opacity: 0, pointerEvents: 'none' });
+
+        // -----------------------------------------------------------------------
+        // FASE 1: Transição de Entrada Ativa (start: 'top bottom' -> 'top top')
+        // Enquanto o usuário desce da grade de projetos até o topo desta seção,
+        // a foto de samba já se move ativamente em profundidade analógica
+        // (eliminando a sensação de imagem estática no momento da transição).
+        // O texto permanece 100% oculto nesta fase.
+        // -----------------------------------------------------------------------
+        gsap.fromTo(
+          bgImage,
+          {
+            yPercent: -22,
+            scale: 1.28,
+          },
+          {
+            yPercent: 0,
+            scale: 1.15,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: 0.9,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+
+        // -----------------------------------------------------------------------
+        // FASE 2: Palco Travado & Surgimento Cinematográfico
+        // (start: 'top top' -> end: '+=140%', pin: true)
+        // Quando a tela trava no topo, o texto surge do nada (fade in + vetores
+        // opostos), descansa legível no centro e dissolve suavemente no desfecho.
+        // -----------------------------------------------------------------------
+        const pinnedTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: '+=140%',
+            pin: true,
+            scrub: 1.1,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // 1. Surgimento do texto (0% a 35% do pin)
+        pinnedTl
+          .to(
+            content,
+            {
+              opacity: 1,
+              pointerEvents: 'auto',
+              duration: 0.35,
+              ease: 'power2.out',
+            },
+            0
+          )
+          .fromTo(
+            textLine1,
+            { xPercent: -50, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
+            0
+          )
+          .fromTo(
+            textLine2,
+            { xPercent: 50, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.45, ease: 'power2.out' },
+            0
+          )
+          .fromTo(
+            subtitle,
+            { y: 35, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+            0.15
+          )
+          .to(
+            bgImage,
+            {
+              scale: 1.02,
+              yPercent: 8,
+              duration: 1.0,
+              ease: 'none',
+            },
+            0
+          )
+          .to(
+            overlay,
+            {
+              opacity: 0.7,
+              duration: 0.5,
+              ease: 'none',
+            },
+            0
+          );
+
+        // 2. Leitura repousada no centro (35% a 70% do pin - mantido estável)
+
+        // 3. Dissolução suave no final do pin (70% a 100% do pin)
+        pinnedTl
+          .to(
+            textLine1,
+            {
+              xPercent: 18,
+              opacity: 0,
+              duration: 0.3,
+              ease: 'power1.in',
+            },
+            0.7
+          )
+          .to(
+            textLine2,
+            {
+              xPercent: -18,
+              opacity: 0,
+              duration: 0.3,
+              ease: 'power1.in',
+            },
+            0.7
+          )
+          .to(
+            subtitle,
+            {
+              opacity: 0,
+              y: -20,
+              duration: 0.25,
+              ease: 'power1.in',
+            },
+            0.75
+          );
+      });
+
+      // =========================================================================
+      // MOBILE: TRANSIÇÃO CONTÍNUA SUAVE (SEM TRAVAR O TOQUE DO DEDO)
+      // =========================================================================
+      mm.add('(max-width: 768px)', () => {
+        gsap.set(content, { opacity: 0 });
+
+        const mobileTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 75%',
+            end: 'bottom 25%',
+            scrub: 0.8,
+          },
+        });
+
+        mobileTl
+          .fromTo(
+            bgImage,
+            { yPercent: -15, scale: 1.2 },
+            { yPercent: 15, scale: 1.02, ease: 'none' },
+            0
+          )
+          .to(
+            content,
+            { opacity: 1, duration: 0.3, ease: 'power1.out' },
+            0.1
+          )
+          .fromTo(
+            textLine1,
+            { xPercent: -25, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.4 },
+            0.1
+          )
+          .fromTo(
+            textLine2,
+            { xPercent: 25, opacity: 0 },
+            { xPercent: 0, opacity: 1, duration: 0.4 },
+            0.1
+          )
+          .fromTo(
+            subtitle,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.3 },
+            0.2
+          );
+      });
+    }, section);
+
+    return () => ctx.revert();
   }, []);
+
   return (
-    <section ref={ref} className="parallax-story" aria-labelledby="visual-story-title">
-      <img src="/projects/fotografias/1-cover.webp" width="1600" height="1067" loading="lazy" alt="Roda de samba registrada por Felipe Irala" />
-      <div className="container"><h2 id="visual-story-title"><span>O cotidiano</span><span>vira repertório.</span></h2><p>Música, encontros e um olhar sempre em movimento.</p></div>
+    <section ref={sectionRef} className="parallax-story" aria-labelledby="visual-story-title">
+      <img
+        ref={bgImageRef}
+        src="/projects/fotografias/1-cover.webp"
+        width="1600"
+        height="1067"
+        loading="lazy"
+        alt={t.story.photoAlt}
+        className="parallax-story-img"
+      />
+      <div ref={overlayRef} className="parallax-story-overlay" aria-hidden="true" />
+      <div ref={contentWrapperRef} className="container parallax-story-content">
+        <h2 id="visual-story-title">
+          <span ref={textLine1Ref} className="story-line story-line-left">{t.story.line1}</span>
+          <span ref={textLine2Ref} className="story-line story-line-right">{t.story.line2}</span>
+        </h2>
+        <p ref={subtitleRef}>{t.story.subtitle}</p>
+      </div>
     </section>
   );
 };
