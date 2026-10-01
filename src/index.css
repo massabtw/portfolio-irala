@@ -292,14 +292,34 @@ section, footer { scroll-margin-top: 96px; }
 .scene-bottom a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; color: var(--ink); }
 @keyframes scene-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-/* Awwwards Pinned Scrollytelling Stage */
-.parallax-story { position: relative; height: 100vh; min-height: 600px; overflow: hidden; display: flex; align-items: center; justify-content: center; isolation: isolate; background: #181b1f; color: white; }
-.parallax-story-img { position: absolute; inset: -15% -5%; width: 110%; height: 130%; max-width: none; object-fit: cover; z-index: 0; will-change: transform; filter: brightness(0.82) contrast(1.05); }
-.parallax-story-overlay { position: absolute; inset: 0; z-index: 1; background: radial-gradient(circle at center, rgb(0 0 0 / 25%) 0%, rgb(0 0 0 / 72%) 100%); pointer-events: none; will-change: opacity; }
-.parallax-story-content { position: relative; z-index: 2; text-align: center; max-width: 1100px; padding-inline: 20px; opacity: 0; pointer-events: none; }
-.parallax-story h2 { font-size: clamp(52px, 8.5vw, 130px); font-weight: 500; line-height: 1.05; letter-spacing: -.065em; }
-.story-line { display: block; will-change: transform, opacity; overflow-wrap: break-word; }
-.parallax-story p { font-size: clamp(14px, 1.8vw, 18px); margin-top: 32px; color: #dbe0e8; will-change: transform, opacity; }
+/* Living poster: existing work assembles into an editorial composition. */
+.living-poster { position: relative; height: calc(100svh - 96px); min-height: 540px; max-height: 860px; overflow: hidden; display: flex; align-items: center; isolation: isolate; background: var(--surface); color: var(--ink); }
+.poster-layout { max-width: 1140px; display: grid; grid-template-columns: 0.85fr 1.15fr; align-items: center; gap: 56px; padding-block: 64px; }
+.poster-copy { position: relative; z-index: 5; }
+.poster-copy h2 { font-size: clamp(38px, 4.5vw, 66px); font-weight: 500; line-height: 1.09; letter-spacing: -.065em; }
+.poster-copy h2 span { display: block; }
+.poster-copy p { max-width: 32ch; margin-top: 26px; color: var(--muted); font-size: 15px; line-height: 1.85; }
+.poster-art { position: relative; width: 100%; aspect-ratio: 1; }
+.poster-piece { position: absolute; overflow: hidden; box-shadow: 0 12px 30px rgb(0 0 0 / 12%); will-change: transform; }
+.poster-piece img { width: 100%; height: 100%; object-fit: cover; }
+.poster-piece-photo { width: 70%; height: 60%; left: 0; top: 5%; z-index: 1; }
+.poster-piece-brand { width: 39%; height: 39%; right: 0; top: 0; z-index: 3; background: #17324a; }
+.poster-piece-brand img, .poster-piece-album img { object-fit: contain; }
+.poster-piece-album { width: 55%; height: 55%; right: 2%; bottom: 2%; z-index: 4; background: #e0ad58; }
+.poster-piece-detail { width: 31%; height: 42%; left: 3%; bottom: 0; z-index: 2; }
+
+@media (max-width: 1000px) and (min-width: 769px) {
+  .poster-layout { gap: 28px; grid-template-columns: 1fr 1.1fr; }
+  .poster-copy h2 { font-size: clamp(34px, 4.5vw, 45px); }
+}
+
+@media (max-width: 768px) {
+  .living-poster { height: auto; min-height: 0; max-height: none; }
+  .poster-layout { width: calc(100% - 40px); grid-template-columns: 1fr; gap: 42px; padding-block: 64px; }
+  .poster-copy h2 { font-size: clamp(36px, 8vw, 56px); }
+  .poster-copy p { margin-top: 20px; font-size: 14px; }
+  .poster-art { width: min(100%, 480px); margin-inline: auto; }
+}
 
 @media (max-width: 1100px) and (min-width: 761px) {
   .scene-copy h1 { font-size: 64px; }
@@ -320,12 +340,9 @@ section, footer { scroll-margin-top: 96px; }
   .scene-album { transform: translate(0%, 0%) rotate(0deg); z-index: 3; }
   .scene-bottom { flex-wrap: wrap; gap: 0 12px; padding-block: 0 16px; font-size: 10px; }
   .scene-bottom > span { display: none; }
-  .parallax-story { height: 100vh; height: 100svh; min-height: 540px; }
-  .parallax-story-content { padding-inline: 16px; }
-  .parallax-story h2 { font-size: clamp(38px, 9.8vw, 68px); letter-spacing: -.06em; line-height: 1.08; }
-  .parallax-story p { max-width: 32ch; font-size: 15px; line-height: 1.8; margin-inline: auto; margin-top: 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .parallax-story-img, .story-line, .parallax-inner-img, .about-parallax-img, .scene-piece { transform: none !important; }
+  .parallax-inner-img, .about-parallax-img, .scene-piece { transform: none !important; }
+  .poster-piece { will-change: auto; }
 }
