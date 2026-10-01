@@ -47,7 +47,6 @@ const PortfolioContent = () => {
   return (
     <>
       <a className="skip-link" href="#conteudo">{t.nav.skipLink}</a>
-      <div className="scroll-progress" aria-hidden="true" />
       <Navbar />
       <main id="conteudo">
         <Hero />

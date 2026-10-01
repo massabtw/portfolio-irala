@@ -40,6 +40,7 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
     if (prefersReducedMotion) return;
 
     const isEvenColumn = index % 2 === 1;
+    const isContainedCover = project.id === 'songs-key-of-life';
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -49,12 +50,12 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
         gsap.fromTo(
           img,
           {
-            yPercent: -10,
-            scale: 1.12,
+            yPercent: isContainedCover ? -2 : -8,
+            scale: isContainedCover ? 0.94 : 1.04,
           },
           {
-            yPercent: 10,
-            scale: 1.04,
+            yPercent: isContainedCover ? 2 : 8,
+            scale: isContainedCover ? 0.94 : 1.02,
             ease: 'none',
             scrollTrigger: {
               trigger: card,
@@ -67,7 +68,7 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
 
         if (isEvenColumn) {
           gsap.to(card, {
-            y: -45,
+            y: -32,
             ease: 'none',
             scrollTrigger: {
               trigger: card,
@@ -84,12 +85,12 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
         gsap.fromTo(
           img,
           {
-            yPercent: -8,
-            scale: 1.15,
+            yPercent: isContainedCover ? -2 : -6,
+            scale: isContainedCover ? 0.94 : 1.03,
           },
           {
-            yPercent: 8,
-            scale: 1.05,
+            yPercent: isContainedCover ? 2 : 6,
+            scale: isContainedCover ? 0.94 : 1.02,
             ease: 'none',
             scrollTrigger: {
               trigger: card,

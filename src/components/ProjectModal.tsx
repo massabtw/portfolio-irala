@@ -7,6 +7,7 @@ import { translations } from '../data/translations';
 
 export const ProjectModal = ({ project, onClose }: { project: Project | null; onClose: () => void }) => {
   const dialog = useRef<HTMLDialogElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
   const { language } = useLanguage();
   const { stopScroll, startScroll } = useSmoothScroll();
@@ -43,7 +44,6 @@ export const ProjectModal = ({ project, onClose }: { project: Project | null; on
   const step = (direction: number) =>
     setImageIndex(value => (value + direction + project.gallery.length) % project.gallery.length);
 
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
