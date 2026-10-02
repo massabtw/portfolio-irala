@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowUpRight } from 'lucide-react';
 import { projects, Project } from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../data/translations';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,112 +22,21 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const imageWrapperRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
   const { language } = useLanguage();
   const t = translations[language];
   const details = t.projectDetails[project.id];
   const projectTitle = details?.title || project.title;
   const projectCategory = details?.category || project.category;
 
-  useEffect(() => {
-    const card = cardRef.current;
-    const img = imgRef.current;
-    if (!card || !img) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    const isEvenColumn = index % 2 === 1;
-    const isContainedCover = project.id === 'songs-key-of-life';
-
-    const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-
-      // Desktop: Asymmetric column offset & window parallax
-      mm.add('(min-width: 769px)', () => {
-        gsap.fromTo(
-          img,
-          {
-            yPercent: isContainedCover ? -2 : -8,
-            scale: isContainedCover ? 0.94 : 1.04,
-          },
-          {
-            yPercent: isContainedCover ? 2 : 8,
-            scale: isContainedCover ? 0.94 : 1.02,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 0.9,
-            },
-          }
-        );
-
-        if (isEvenColumn) {
-          gsap.to(card, {
-            y: -32,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-          });
-        }
-      });
-
-      // Mobile: Calibrated window parallax and subtle editorial cadence
-      mm.add('(max-width: 768px)', () => {
-        gsap.fromTo(
-          img,
-          {
-            yPercent: isContainedCover ? -2 : -6,
-            scale: isContainedCover ? 0.94 : 1.03,
-          },
-          {
-            yPercent: isContainedCover ? 2 : 6,
-            scale: isContainedCover ? 0.94 : 1.02,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 0.8,
-            },
-          }
-        );
-
-        if (isEvenColumn) {
-          gsap.to(card, {
-            y: -16,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.0,
-            },
-          });
-        }
-      });
-    }, card);
-
-    return () => ctx.revert();
-  }, [index]);
-
   return (
-    <div ref={cardRef} className={`project-card ${index % 2 === 1 ? 'project-card-even' : ''}`}>
+    <div className={`project-card ${index % 2 === 1 ? 'project-card-even' : ''}`}>
       <button
         className="project-button"
         type="button"
         onClick={() => onSelectProject(project)}
         aria-label={`${t.projects.viewProject} ${projectTitle}`}
       >
-        <div ref={imageWrapperRef} className={`project-image image-${project.id}`}>
+        <div className="project-image">
           <picture className="project-picture">
             <source
               media="(max-width: 480px)"
@@ -138,13 +47,12 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
               }
             />
             <img
-              ref={imgRef}
               src={project.coverImage}
               alt={`Capa do projeto ${projectTitle}`}
               width="1200"
               height="1200"
               loading="lazy"
-              className="parallax-inner-img"
+              className="project-cover-img"
             />
           </picture>
           <span className="project-open">
@@ -168,6 +76,63 @@ export const ProjectsGrid = ({ onSelectProject }: { onSelectProject: (project: P
   const { language } = useLanguage();
   const t = translations[language];
 
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const media = gsap.matchMedia();
+
+    media.add({
+      desktop: '(min-width: 769px)',
+      mobile: '(max-width: 768px)',
+      reduceMotion: '(prefers-reduced-motion: reduce)',
+    }, context => {
+      const { mobile, reduceMotion } = context.conditions!;
+      if (reduceMotion) return;
+
+      grid.querySelectorAll<HTMLElement>('.project-card').forEach((card, index) => {
+        const button = card.querySelector<HTMLButtonElement>('.project-button');
+        const picture = card.querySelector<HTMLElement>('.project-picture');
+        if (!button || !picture) return;
+        const rightColumn = index % 2 === 1;
+
+        // Keep the grid cell still for stable measurements. Scroll moves the
+        // whole button; CSS hover moves only the poster inside that button.
+        gsap.fromTo(button, {
+          y: mobile ? (rightColumn ? 28 : 20) : (rightColumn ? 96 : 56),
+        }, {
+          y: mobile ? (rightColumn ? -16 : -8) : (rightColumn ? -48 : -24),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: mobile ? 0.5 : 0.8,
+          },
+        });
+
+        // Reveal the artwork without enlarging or translating its pixels.
+        gsap.fromTo(picture, {
+          clipPath: `inset(0% 0% ${mobile ? 12 : 22}% 0% round 8px)`,
+        }, {
+          clipPath: 'inset(0% 0% 0% 0% round 8px)',
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 95%',
+            end: 'top 55%',
+            scrub: mobile ? 0.4 : 0.6,
+          },
+        });
+      });
+    }, grid);
+
+    const refreshFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => {
+      cancelAnimationFrame(refreshFrame);
+      media.revert();
+    };
+  }, [category, language]);
+
   useEffect(() => {
     const sync = () => setCategory(readCategory());
     window.addEventListener('popstate', sync);
@@ -184,13 +149,6 @@ export const ProjectsGrid = ({ onSelectProject }: { onSelectProject: (project: P
 
   const filtered = projects.filter(project => category === 'Todos' || project.category === category);
 
-  // Refresh ScrollTrigger when category changes or grid recalculates
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [category]);
 
   return (
     <section id="trabalhos" className="projects container">
