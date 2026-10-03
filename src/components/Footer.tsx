@@ -24,7 +24,7 @@ export const Footer = () => {
     const arrow = arrowRef.current;
     if (!footer || !title) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = false;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {

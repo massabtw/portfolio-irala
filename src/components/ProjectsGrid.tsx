@@ -36,83 +36,38 @@ const ProjectCard = ({ project, index, onSelectProject }: ProjectCardProps) => {
     const img = imgRef.current;
     if (!card || !img) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = false;
     if (prefersReducedMotion) return;
 
-    const isEvenColumn = index % 2 === 1;
-    const isContainedCover = project.id === 'songs-key-of-life';
-
+    // The image is taller than its frame (125%) and always scaled >= 1, so the
+    // frame is always fully covered: no blank gaps at any scroll position.
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      // Desktop: Asymmetric column offset & window parallax
       mm.add('(min-width: 769px)', () => {
         gsap.fromTo(
           img,
+          { yPercent: -8, scale: 1.1 },
           {
-            yPercent: isContainedCover ? -2 : -8,
-            scale: isContainedCover ? 0.94 : 1.04,
-          },
-          {
-            yPercent: isContainedCover ? 2 : 8,
-            scale: isContainedCover ? 0.94 : 1.02,
+            yPercent: 8,
+            scale: 1.04,
             ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 0.9,
-            },
+            scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: 0.9 },
           }
         );
-
-        if (isEvenColumn) {
-          gsap.to(card, {
-            y: -32,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-          });
-        }
       });
 
-      // Mobile: Calibrated window parallax and subtle editorial cadence
       mm.add('(max-width: 768px)', () => {
         gsap.fromTo(
           img,
+          { yPercent: -6, scale: 1.06 },
           {
-            yPercent: isContainedCover ? -2 : -6,
-            scale: isContainedCover ? 0.94 : 1.03,
-          },
-          {
-            yPercent: isContainedCover ? 2 : 6,
-            scale: isContainedCover ? 0.94 : 1.02,
+            yPercent: 6,
+            scale: 1.03,
             ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 0.8,
-            },
+            scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: 0.8 },
           }
         );
-
-        if (isEvenColumn) {
-          gsap.to(card, {
-            y: -16,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.0,
-            },
-          });
-        }
       });
     }, card);
 

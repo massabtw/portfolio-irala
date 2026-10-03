@@ -28,7 +28,7 @@ export const ParallaxStory = () => {
 
     if (!section || !bgImage || !content || !textLine1 || !textLine2 || !subtitle || !overlay) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = false;
 
     const ctx = gsap.context(() => {
       if (prefersReducedMotion) {

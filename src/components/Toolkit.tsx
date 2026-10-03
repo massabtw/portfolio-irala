@@ -17,7 +17,7 @@ export const Toolkit = () => {
     const grid = gridRef.current;
     if (!section || !grid) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = false;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {

@@ -27,7 +27,7 @@ export const Hero = () => {
     const album = albumRef.current;
     if (!section || !art || !photo || !brand || !album) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = false;
 
     const ctx = gsap.context(() => {
       if (prefersReducedMotion) return;

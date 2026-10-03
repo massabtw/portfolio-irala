@@ -30,8 +30,8 @@ export const SmoothScrollProvider = ({ children }: { children: ReactNode }) => {
       history.scrollRestoration = 'manual';
     }
 
-    // Respect user preference for reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Enable full cinematic momentum scrolling for portfolio
+    const prefersReducedMotion = false;
 
     // Cinematic Awwwards scroll configuration:
     // Heavy, weighted momentum with silky damping (lerp: 0.08)
